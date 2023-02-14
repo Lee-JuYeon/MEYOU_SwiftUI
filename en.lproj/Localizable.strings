@@ -1,0 +1,37 @@
+/* 
+  Localizable.strings
+  MEYOU
+
+  Created by C.A.V.S.S on 2022/12/02.
+  
+*/
+
+"login" = "LOG IN";
+"forgetPW" = "Forget password?";
+"register" = "Register";
+"takeSelfie" = "Click for take a selfie";
+
+"emailHint" = "Email";
+"email unvalid" = "Email unvalid";
+"pwHint" = "Password";
+"pwHintCheck" = "Verify your password";
+"password unvalid" = "최소 8자이상, 대소문자와 숫자 조합으로 해주세요";
+"getPhotoFromLibrary" = "Get photos from library";
+"userNameHint" = "Name";
+"jobHint" = "What is your job?";
+"careerHint" = "Add your careers";
+"birthdayLabel" = "🎂 Birthday";
+"cityLabel" = "📍 City";
+"schoolLabel" = "🎓 School";
+"schoolHint" = "Enter the school";
+"bioHint" = "Bio";
+
+"tab_mates" = "Mates";
+"tab_chat" = "Chats";
+"tab_profile" = "Profile";
+
+"terms_of_service_login_notify" = "By logging in, you agree to the Meyou Terms of service. Check out our privacy policy and cookie policy.";
+"terms_of_service_title" = "Terms of service";
+"terms_of_service_option1" = "(필수)개인정보(위치정보포함)의 수집 및 이용에 동의합니다 more";
+"terms_of_service_seeMore" = "more";
+

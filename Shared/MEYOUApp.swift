@@ -6,12 +6,29 @@
 //
 
 import SwiftUI
+import Firebase
+//import UIKit
 
 @main
 struct MEYOUApp: App {
+    
+    init(){
+        FirebaseApp.configure()
+        
+    }
+    
+//    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            DestinationView()
         }
     }
 }
+
+/*
+ 오픈소스
+ swipe view = https://github.com/bbaars/SwiftUI-Tinder-SwipeableCards
+ 
+ */
