@@ -36,7 +36,6 @@ class AuthVM : ObservableObject {
                            print(error?.localizedDescription ?? "")
                            onFailed()
                        } else {
-                           print("success")
                            onSuccess()
                        }
                    }
@@ -130,8 +129,6 @@ class AuthVM : ObservableObject {
                            
                 guard let user = authResult?.user else { return }
                 self.auth = user
-                print("가입한 uid : \(user.uid)")
-                print("현재 uid : \(Auth.auth().currentUser?.uid)")
                 onSuccess()
             }
         }catch{
@@ -153,20 +150,22 @@ class AuthVM : ObservableObject {
         onFailed : @escaping () -> Void
     ){
         do{
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
             
             let userInfoData : [String : Any] = [
                 "uid" : self.getAuth().uid,
-                "name" : "self.name",
-                "gender" : "self.gender",
-                "birthday" : "birthdayyy123123",
-                "job" : "self.jobs",
-                "career" : "",
-                "city" : "",
-                "bio" : "",
-                "chips" : "",
-                "verify" : "false",
-                "vip" : "false",
-                "banned" : "false"
+                "name" : self.name,
+                "gender" : self.gender.rawValue,
+                "birthday" : dateFormatter.string(from: self.birthday),
+                "job" : self.jobs,
+                "career" : self.career,
+                "city" : self.city,
+                "bio" : self.bio,
+                "chips" : self.chips,
+                "verify" : false,
+                "vip" : false,
+                "banned" : false
             ]
 
             
@@ -190,7 +189,9 @@ class AuthVM : ObservableObject {
         onFailed : @escaping () -> Void
     ){
         do{
-            let ref = Storage.storage().reference(withPath: "/UserInformation/selfies/\(String(describing: auth?.uid))")
+//            let ref = Storage.storage().reference(withPath: "/UserInformation/selfies/\(String(describing: auth?.uid))")
+            guard let authUID = auth?.uid else { return }
+            let ref = Storage.storage().reference(withPath: "/UserInformation/selfies/\(authUID)")
             
             let setMetadata = StorageMetadata()
             // jpg로 타입을 저장하지 않으면 application/octet-stream타입으로 저장된다.
@@ -209,14 +210,13 @@ class AuthVM : ObservableObject {
                 let current_date_string = formatter.string(from: Date())
                 
                 // 이미지 이름 설정
-                let imageName = "\(String(describing: auth!.uid))_\(current_date_string)"
+                let imageName = "\(authUID)_\(current_date_string)"
                 
-                ref.child(imageName ?? "unknown image name").putData(imageData, metadata: setMetadata) { storageMetaData, error in
+                ref.child(imageName).putData(imageData, metadata: setMetadata) { storageMetaData, error in
                     if let error = error {
                         print("AuthVM, imageUpload, ref.putData // Error : \(error.localizedDescription)")
                         return
                     }else{
-                        print("성공한 파일 이름 : \(imageName ?? "unkown image name")")
                         onSuccess()
                     }
                 }
