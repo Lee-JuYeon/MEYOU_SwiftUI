@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UserInfoModel : Hashable{
+struct UserInfoModel : Codable, Hashable {
     let uid: String
     let name: String
     let gender: Gender

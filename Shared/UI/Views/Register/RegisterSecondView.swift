@@ -47,20 +47,18 @@ struct RegisterSecondView: View {
                     Text("➡️")
                         .font(.system(size: 40))
                         .onTapGesture {
-                            getCurrentPage = 2
-
-//                            authVM.register(
-//                                onSuccess: {
-//                                    // 파베 계정생성완료했으니 화면전환
-//                                    getCurrentPage = 2
-//                                    print("success")
-//                                },
-//                                onFailed: { reason in
-//                                    // 파베 계정생성 실패
-//                                    unvalidReason = reason
-//                                    print("RegisterFirstView, authVM.register, onFailed // Error : \(reason)")
-//                                }
-//                            )
+                            authVM.register(
+                                onSuccess: {
+                                    // 파베 계정생성완료했으니 화면전환
+                                    getCurrentPage = 2
+                                    print("success")
+                                },
+                                onFailed: { reason in
+                                    // 파베 계정생성 실패
+                                    unvalidReason = reason
+                                    print("RegisterFirstView, authVM.register, onFailed // Error : \(reason)")
+                                }
+                            )
                         }
                 }//hstack
             }//vstack

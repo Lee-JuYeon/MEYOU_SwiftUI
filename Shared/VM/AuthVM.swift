@@ -8,14 +8,17 @@
 import SwiftUI
 import Firebase
 import FirebaseStorage
+import FirebaseDatabase
+import FirebaseDatabaseSwift
 
 class AuthVM : ObservableObject {
     
-    @Published var auth : User? = nil
-
+    private var auth : User? = nil
     @Published var chips : [String] = [];
+    
+    private let db = Database.database(url: "https://meyou-6ca01-default-rtdb.asia-southeast1.firebasedatabase.app").reference()
     init(){
-        self.auth = Auth.auth().currentUser
+
     }
     
     let emailHint : LocalizedStringKey = "emailHint"
@@ -66,17 +69,11 @@ class AuthVM : ObservableObject {
         }
     }
     
-    func getAuth(){
-        do{
-            
-        }catch{
-            
-        }
+    func getAuth() -> User {
+        return auth!
     }
-    
-    
-    
-    
+
+
     private func emailValidCheck(
         email : String,
         isValid : () -> Void,
@@ -132,7 +129,9 @@ class AuthVM : ObservableObject {
                 }
                            
                 guard let user = authResult?.user else { return }
-                let userUID = user.uid
+                self.auth = user
+                print("가입한 uid : \(user.uid)")
+                print("현재 uid : \(Auth.auth().currentUser?.uid)")
                 onSuccess()
             }
         }catch{
@@ -154,29 +153,30 @@ class AuthVM : ObservableObject {
         onFailed : @escaping () -> Void
     ){
         do{
-            /*
-             이름, 성별, 직업, 경력, 생일, 자기소개
-             + 셀카, 지역, chips
-             
-             셀카 v
-             이름
-             직업
-             경력
-             생년월일
-             자기소개
-             
-             회원가입 신청 -> A or B(jail : fake, reported)/accept 처리.
-             */
             
-         
+            let userInfoData : [String : Any] = [
+                "uid" : self.getAuth().uid,
+                "name" : "self.name",
+                "gender" : "self.gender",
+                "birthday" : "birthdayyy123123",
+                "job" : "self.jobs",
+                "career" : "",
+                "city" : "",
+                "bio" : "",
+                "chips" : "",
+                "verify" : "false",
+                "vip" : "false",
+                "banned" : "false"
+            ]
+
             
-                        
             imageUpload(
                 onSuccess: {
-                    
+                    self.db.child("userInfo/registerRequest/\(self.getAuth().uid)")
+                        .setValue(userInfoData)
                 },
                 onFailed: {
-                    
+
                 }
             )
         }catch{
@@ -190,7 +190,7 @@ class AuthVM : ObservableObject {
         onFailed : @escaping () -> Void
     ){
         do{
-            let ref = Storage.storage().reference(withPath: "/UserInformation/\(auth?.uid)/selfies")
+            let ref = Storage.storage().reference(withPath: "/UserInformation/selfies/\(String(describing: auth?.uid))")
             
             let setMetadata = StorageMetadata()
             // jpg로 타입을 저장하지 않으면 application/octet-stream타입으로 저장된다.
@@ -209,14 +209,14 @@ class AuthVM : ObservableObject {
                 let current_date_string = formatter.string(from: Date())
                 
                 // 이미지 이름 설정
-                let imageName = "\(auth?.uid)_\(current_date_string)"
+                let imageName = "\(String(describing: auth!.uid))_\(current_date_string)"
                 
-                ref.child(imageName).putData(imageData, metadata: setMetadata) { storageMetaData, error in
+                ref.child(imageName ?? "unknown image name").putData(imageData, metadata: setMetadata) { storageMetaData, error in
                     if let error = error {
                         print("AuthVM, imageUpload, ref.putData // Error : \(error.localizedDescription)")
                         return
                     }else{
-                        print("성공한 파일 이름 : \(imageName)")
+                        print("성공한 파일 이름 : \(imageName ?? "unkown image name")")
                         onSuccess()
                     }
                 }
@@ -225,5 +225,12 @@ class AuthVM : ObservableObject {
             print("AuthVM, imageUpload // Error : \(error.localizedDescription)")
             onFailed()
         }
+    }
+    
+    private func readData(){
+        db.child("asdf").observeSingleEvent(of: .value, with: { snapshot in
+            guard let value = snapshot.value as? [String : Any] else { return }
+            print("value : \(value)")
+        })
     }
 }
