@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum Gender : Int, Codable{
-    case MALE
-    case FEMALE
+enum Gender : String, Codable{
+    case MALE = "MALE"
+    case FEMALE = "FEMALE"
 }
