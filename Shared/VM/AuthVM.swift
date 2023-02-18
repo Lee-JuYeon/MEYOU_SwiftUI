@@ -17,9 +17,13 @@ class AuthVM : ObservableObject {
     @Published var chips : [String] = [];
     
     private let db = Database.database(url: "https://meyou-6ca01-default-rtdb.asia-southeast1.firebasedatabase.app").reference()
-    init(){
+    
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
 
+    init(){
     }
+    
     
     let emailHint : LocalizedStringKey = "emailHint"
     let pwHint : LocalizedStringKey = "pwHint"
@@ -28,17 +32,22 @@ class AuthVM : ObservableObject {
         onFailed : @escaping () -> Void
     ){
         do{
-            Auth.auth().signIn(
-                withEmail: email,
-                password: password
-            ) { (result, error) in
-                       if error != nil {
-                           print(error?.localizedDescription ?? "")
-                           onFailed()
-                       } else {
-                           onSuccess()
-                       }
-                   }
+            Auth.auth().signIn(withEmail: email,password: password) { (result, error) in
+                if error != nil {
+                    print(error?.localizedDescription ?? "")
+                    onFailed()
+                } else {
+                    self.auth = result?.user
+                    self.userInfoCheck(
+                        onSuccess: {
+                            onSuccess()
+                        },
+                        onFailed: {
+                            onFailed()
+                        }
+                    )
+                }
+            }
         }catch{
             print("AuthVM, login // Error : \(error.localizedDescription)")
         }
@@ -52,11 +61,49 @@ class AuthVM : ObservableObject {
         }
     }
     
-    func faceCheck(){
+    @Published private var userInfo_requestList : [UserInfoModel] = []
+    private func userInfoCheck(
+        onSuccess : @escaping () -> Void,
+        onFailed : @escaping () -> Void
+    ){
         do{
-            
+            self.db.child("userInfo/registerRequest/")
+                .observeSingleEvent(of: .value, with: { [weak self] snapshot in
+                    guard
+                        let self = self,
+                        var json = snapshot.value as? [String : Any]
+                    else {
+                        return
+                    }
+                    
+//                    json["uid"] = snapshot.key
+                    
+                    do {
+//                        let userInfoData = try JSONSerialization.data(withJSONObject: json)
+//                        let userInfo = try self.decoder.decode(UserInfoModel.self, from: userInfoData)
+                        for child in snapshot.children {
+                            if let data = child as? DataSnapshot {
+                                print("데이터 : \(data)")
+                            }
+                        }
+//                        self.userInfo_requestList.append(userInfo)
+//
+//                        self.userInfo_requestList.map { userInfoModel in
+//                            if userInfoModel.uid == self.getAuth().uid {
+//                                // waiting 뷰로 이동
+//                                print("회원가입 얼굴설정 뷰로 이동")
+//                            }else{
+//                                //mainview로 이동
+//                                print("userInfoModel : \(userInfoModel)")
+//                                print("메인뷰로 이동")
+//                            }
+//                        }
+                    } catch {
+                        print("AuthVM, userInfoCheck, observing // Error : \(error.localizedDescription)")
+                    }
+                })
         }catch{
-            
+            print("AuthVM, userInfoCheck // Error : \(error.localizedDescription)")
         }
     }
     
@@ -175,7 +222,7 @@ class AuthVM : ObservableObject {
                         .setValue(userInfoData)
                 },
                 onFailed: {
-
+                    print("AuthVM, setInformation, imageUpload, onFailed // Error ")
                 }
             )
         }catch{
@@ -232,5 +279,9 @@ class AuthVM : ObservableObject {
             guard let value = snapshot.value as? [String : Any] else { return }
             print("value : \(value)")
         })
+    }
+    
+    func stopDBListening(){
+        db.removeAllObservers()
     }
 }
